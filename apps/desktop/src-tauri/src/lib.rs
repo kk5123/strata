@@ -1,6 +1,9 @@
 use std::sync::atomic::{AtomicBool, Ordering};
+use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
 static IS_DOWN: AtomicBool = AtomicBool::new(false);
+
+const STRATUM_LABEL: &str = "Stratum";
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -15,6 +18,19 @@ pub fn run() {
     .setup(|app| {
       #[cfg(desktop)]
       {
+        if app.get_webview_window(STRATUM_LABEL).is_none() {
+          WebviewWindowBuilder::new(app, STRATUM_LABEL, WebviewUrl::App("/".into()))
+            .title(STRATUM_LABEL)
+            .visible(false)
+            .decorations(false)
+            .resizable(true)
+            .always_on_top(true)
+            .inner_size(480.0, 320.0)
+            .build()?;
+        }
+
+        let handle = app.handle().clone();
+
         use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
         let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space);
@@ -25,7 +41,11 @@ pub fn run() {
                 if IS_DOWN.swap(true, Ordering::SeqCst) {
                   return;
                 }
-                println!("Ctrl+Shift+Space Pressed")
+
+                if let Some(win) = handle.get_webview_window(STRATUM_LABEL) {
+                  let _ = win.show();
+                  let _ = win.set_focus();
+                }
               }
               ShortcutState::Released => {
                 IS_DOWN.store(false, Ordering::SeqCst);
