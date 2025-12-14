@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Strata Engineering Docs',
   url: 'https://kk5123.github.io',
-  baseUrl: '/',
+  baseUrl: '/strata/',
   organizationName: 'kk5123',
   projectName: 'strata',
   i18n: { defaultLocale: 'ja', locales: ['ja'] },
