@@ -3,7 +3,7 @@ use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
 static IS_DOWN: AtomicBool = AtomicBool::new(false);
 
-const STRATUM_LABEL: &str = "Stratum";
+const SCRATCHPAD_LABEL: &str = "Scratchpad";
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -18,9 +18,9 @@ pub fn run() {
     .setup(|app| {
       #[cfg(desktop)]
       {
-        if app.get_webview_window(STRATUM_LABEL).is_none() {
-          WebviewWindowBuilder::new(app, STRATUM_LABEL, WebviewUrl::App("/".into()))
-            .title(STRATUM_LABEL)
+        if app.get_webview_window(SCRATCHPAD_LABEL).is_none() {
+          WebviewWindowBuilder::new(app, SCRATCHPAD_LABEL, WebviewUrl::App("/".into()))
+            .title(SCRATCHPAD_LABEL)
             .visible(false)
             .decorations(false)
             .resizable(true)
@@ -42,7 +42,7 @@ pub fn run() {
                   return;
                 }
 
-                if let Some(win) = handle.get_webview_window(STRATUM_LABEL) {
+                if let Some(win) = handle.get_webview_window(SCRATCHPAD_LABEL) {
                   let _ = win.show();
                   let _ = win.set_focus();
                 }

@@ -7,7 +7,7 @@
   ],
   "windows": [
     "main",
-    "stratum"
+    "scratchpad"
   ],
   "permissions": [
     "global-shortcut:default"
