@@ -3,7 +3,7 @@ use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
 
 static IS_DOWN: AtomicBool = AtomicBool::new(false);
 
-const SCRATCHPAD_LABEL: &str = "Scratchpad";
+const SCRATCHPAD_LABEL: &str = "scratchpad";
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -19,7 +19,7 @@ pub fn run() {
       #[cfg(desktop)]
       {
         if app.get_webview_window(SCRATCHPAD_LABEL).is_none() {
-          WebviewWindowBuilder::new(app, SCRATCHPAD_LABEL, WebviewUrl::App("/".into()))
+          WebviewWindowBuilder::new(app, SCRATCHPAD_LABEL, WebviewUrl::App("/#/quick".into()))
             .title(SCRATCHPAD_LABEL)
             .visible(false)
             .decorations(false)
