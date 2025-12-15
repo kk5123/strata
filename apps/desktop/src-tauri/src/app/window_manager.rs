@@ -43,7 +43,11 @@ impl WindowManager {
 
   pub fn on_scratchpad_hotkey(&self, app: &AppHandle) {
     if !self.is_dashboard_visible(app) {
-      self.show_scratchpad(app);
+      if self.is_scratchpad_focused(app) {
+        self.hide_scratchpad(app);
+      } else {
+        self.show_scratchpad(app);
+      }
     }
   }
 
@@ -75,15 +79,11 @@ impl WindowManager {
       .visible(false)
       .decorations(false)
       .resizable(false)
-      .always_on_top(true)
+      .always_on_top(false)
       .skip_taskbar(true)
       .build()
       .expect("failed to build scratchpad window")
   }
-
-  // --------------------
-  // Visibility 판단
-  // --------------------
 
   fn is_dashboard_visible(&self, app: &AppHandle) -> bool {
     if let Some(win) = self.dashboard(app) {
@@ -95,6 +95,16 @@ impl WindowManager {
       }
 
       return true;
+    }
+
+    false
+  }
+
+  fn is_scratchpad_focused(&self, app: &AppHandle) -> bool {
+    if let Some(win) = self.scratchpad(app) {
+      if let Ok(true) = win.is_focused() {
+        return true;
+      }
     }
 
     false
