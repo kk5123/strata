@@ -9,7 +9,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <HashRouter>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/quick" element={<Scratchpad />} />
+        <Route path="/scratchpad" element={<Scratchpad />} />
       </Routes>
     </HashRouter>
   </React.StrictMode>,

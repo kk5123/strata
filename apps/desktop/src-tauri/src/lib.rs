@@ -1,9 +1,10 @@
+mod app;
+use app::window_manager::WindowManager;
+
 use std::sync::atomic::{AtomicBool, Ordering};
-use tauri::{Manager, WebviewUrl, WebviewWindowBuilder};
+use tauri::Manager;
 
 static IS_DOWN: AtomicBool = AtomicBool::new(false);
-
-const SCRATCHPAD_LABEL: &str = "scratchpad";
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -18,22 +19,13 @@ pub fn run() {
     .setup(|app| {
       #[cfg(desktop)]
       {
-        if app.get_webview_window(SCRATCHPAD_LABEL).is_none() {
-          WebviewWindowBuilder::new(app, SCRATCHPAD_LABEL, WebviewUrl::App("/#/quick".into()))
-            .title(SCRATCHPAD_LABEL)
-            .visible(false)
-            .decorations(false)
-            .resizable(true)
-            .always_on_top(true)
-            .inner_size(480.0, 320.0)
-            .build()?;
-        }
-
-        let handle = app.handle().clone();
+        let wm = WindowManager::new();
 
         use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
-
         let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space);
+
+        let wm_hotkey = wm.clone();
+        let app_for_wm = app.handle().clone();
         app.handle().plugin(
           tauri_plugin_global_shortcut::Builder::new().with_handler(move |_app, _shortcut, event| {
             match event.state() {
@@ -42,10 +34,7 @@ pub fn run() {
                   return;
                 }
 
-                if let Some(win) = handle.get_webview_window(SCRATCHPAD_LABEL) {
-                  let _ = win.show();
-                  let _ = win.set_focus();
-                }
+                wm_hotkey.on_scratchpad_hotkey(&app_for_wm);
               }
               ShortcutState::Released => {
                 IS_DOWN.store(false, Ordering::SeqCst);
