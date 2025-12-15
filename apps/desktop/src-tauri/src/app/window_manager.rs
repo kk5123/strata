@@ -19,8 +19,26 @@ impl Default for WindowManager {
 }
 
 impl WindowManager {
-  pub fn new() -> Self {
-    Self::default()
+  pub fn init(app: &AppHandle) -> Self {
+    let dashboard = app
+      .get_webview_window(LABEL_DASHBOARD)
+      .expect("dashboard window not found");
+
+    let wm = Self::default();
+    let wm_for_event = wm.clone();
+    let app_handle = app.clone();
+
+    dashboard.on_window_event(move |event| {
+      match event {
+        tauri::WindowEvent::Focused(true) => {
+          wm_for_event.hide_scratchpad(&app_handle);
+        }
+
+        _ => {}
+      }
+    });
+
+    wm
   }
 
   pub fn on_scratchpad_hotkey(&self, app: &AppHandle) {

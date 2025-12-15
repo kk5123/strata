@@ -19,7 +19,7 @@ pub fn run() {
     .setup(|app| {
       #[cfg(desktop)]
       {
-        let wm = WindowManager::new();
+        let wm = WindowManager::init(app.handle());
 
         use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
         let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space);
