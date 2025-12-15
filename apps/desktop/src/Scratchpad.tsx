@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { invoke } from "@tauri-apps/api/core";
 import "./Scratchpad.css";
 
 export function Scratchpad() {
@@ -9,11 +10,7 @@ export function Scratchpad() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        win.hide().catch(console.error);
-      }
-      if (e.key === "Enter" && e.ctrlKey) {
-        e.preventDefault();
-        submit();
+        close();
       }
     };
     window.addEventListener("keydown", handler);
@@ -21,10 +18,8 @@ export function Scratchpad() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const submit = async () => {
-    // TODO: 保存やAI呼び出しをここに実装
-    console.log("scratch:", text);
-    setText("");
+  const close = async () => {
+    await invoke("scratchpad_closed").catch(console.error);
     await win.hide().catch(console.error);
   };
 
@@ -39,7 +34,7 @@ export function Scratchpad() {
         autoFocus
       />
       <div className="scratch-actions">
-        <button onClick={() => win.hide().catch(console.error)}>閉じる</button>
+        <button onClick={close}>閉じる</button>
       </div>
     </div>
   );
