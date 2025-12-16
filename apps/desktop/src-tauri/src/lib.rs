@@ -1,10 +1,8 @@
 mod app;
-use app::window_manager::WindowManager;
+mod settings;
 
-use std::sync::atomic::{AtomicBool, Ordering};
-use tauri::Manager;
-
-static IS_DOWN: AtomicBool = AtomicBool::new(false);
+use app::{window_manager::WindowManager, shortcuts::ShortcutEngine};
+use settings::shortcuts::ShortcutConfig;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -26,32 +24,14 @@ pub fn run() {
       {
         let wm = WindowManager::init(app.handle());
 
-        use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
-        let shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::SHIFT), Code::Space);
+        let config = ShortcutConfig {
+          toggle_scratchpad: "Ctrl+Shift+Space".into(),
+        };
 
-        let wm_hotkey = wm.clone();
-        let app_for_wm = app.handle().clone();
-        app.handle().plugin(
-          tauri_plugin_global_shortcut::Builder::new().with_handler(move |_app, _shortcut, event| {
-            match event.state() {
-              ShortcutState::Pressed => {
-                if IS_DOWN.swap(true, Ordering::SeqCst) {
-                  return;
-                }
+        ShortcutEngine::init(app.handle(), &config, wm)?;
 
-                wm_hotkey.on_scratchpad_hotkey(&app_for_wm);
-              }
-              ShortcutState::Released => {
-                IS_DOWN.store(false, Ordering::SeqCst);
-              }
-            }
-          })
-          .build(),
-        )?;
-
-        app.global_shortcut().register(shortcut)?;
+        Ok(())
       }
-      Ok(())
     })
     .invoke_handler(tauri::generate_handler![greet, scratchpad_closed])
     .run(tauri::generate_context!())
